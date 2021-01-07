@@ -19,11 +19,12 @@ app.get("/file", (req, res) => {
     res.sendFile(path.join(__dirname, "test.csv"))
 })
 
-// Send information which contains the url
+// Make a post req which contains the url and the selected fields
 app.post("/", (req, res) => {
     try {
 const {csv} = req.body
 let csvUrl = csv.url
+let selectFieldsArray = csv.select_fields
 
     // validate url 
 //    if(!validator.isURL(csvUrl)) {
@@ -31,7 +32,7 @@ let csvUrl = csv.url
 //    }
 
 
-// Funtion to get data from csv file
+// Function to get data from csv file
    const urlHandler = async () => {
     const url = axios.get(csvUrl)
     const getCsv = await url;
@@ -47,28 +48,34 @@ let csvUrl = csv.url
 
     // Convert csv to json
     const csvFilePath = path.join(__dirname, "Newfile.csv");
-    // csv()
-    // .fromFile(csvFilePath)
-    // .then((jsonObj) => {
-    //   console.log(jsonObj)
-    // })
 
     const jsonArray = await csvtojson().fromFile(csvFilePath)
-    console.log(jsonArray)
+    // console.log(jsonArray)
+    // console.log(selectFieldsArray)
+
+
+    // Map content of jsonArray to the selected fields array
+    if(!selectFieldsArray) {
+      // console.log(jsonArray)
+    }
+    
+  const fields =  selectFieldsArray.map((item) => {
+      return item;
+    })
+  
+  console.log(fields)
+  
 
    }
    
 // Call function
    urlHandler()
 
-   
-   
-    // res.send(csv)
-  res.send(req.body)
+   res.send(req.body)
 
-    }catch (e) {
-      return  res.send(e)
-    }
+ }catch (e) {
+    return  res.send(e)
+ }
    
 })
 
