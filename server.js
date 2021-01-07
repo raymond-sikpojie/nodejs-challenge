@@ -59,6 +59,7 @@ let selectFieldsArray = csv.select_fields
       // console.log(jsonArray)
     }
     
+    // loop through the select fields array to get individual item
   const fields =  selectFieldsArray.map((item) => {
       return item;
     })
