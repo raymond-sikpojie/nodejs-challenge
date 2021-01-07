@@ -2,6 +2,7 @@ const express = require("express");
 const validator = require("validator")
 const axios = require("axios")
 const path = require("path");
+const fs = require("fs")
 const csvtojson =require("csvtojson")
 const app = express()
 app.use(express.json())
@@ -36,12 +37,31 @@ let csvUrl = csv.url
     const getCsv = await url;
 
     let csvData = getCsv.data
-    console.log(csvData)
-    // console.log(path.join(__dirname, "test"))
+    // console.log(csvData)
+    
+    // Write data to a file
+    fs.writeFile("Newfile.csv", csvData, (err) => {
+      if(err) throw err;
+      console.log("File saved")
+    })
+
+    // Convert csv to json
+    const csvFilePath = path.join(__dirname, "Newfile.csv");
+    // csv()
+    // .fromFile(csvFilePath)
+    // .then((jsonObj) => {
+    //   console.log(jsonObj)
+    // })
+
+    const jsonArray = await csvtojson().fromFile(csvFilePath)
+    console.log(jsonArray)
+
    }
    
 // Call function
    urlHandler()
+
+   
    
     // res.send(csv)
   res.send(req.body)
