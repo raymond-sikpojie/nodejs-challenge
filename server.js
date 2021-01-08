@@ -5,18 +5,16 @@ const path = require("path");
 const fs = require("fs")
 const { v4: uuidv4 } = require('uuid');
 const csvtojson =require("csvtojson");
-const { json } = require("body-parser");
+
 
 const app = express()
 app.use(express.json())
 
 
-// Request to get csv file
+// Request to get csv file. We use the url to this endpoint for testing our script
 app.get("/file", (req, res) => {
     res.sendFile(path.join(__dirname, "test.csv"))
 })
-
-
 
 
 // Make a post req which contains the url and the selected fields
