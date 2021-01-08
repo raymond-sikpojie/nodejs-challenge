@@ -27,9 +27,9 @@ app.get("/file", (req, res) => {
     // Get the link to csv 
     const urlHandler = async (csvLink) => {
     // Validate url
-    // if(!validator.isURL(csvLink)) {
-    //   return res.status(400).send("Enter a valid URL")
-    // }
+    if(!validator.isURL(csvLink)) {
+      return res.status(400).send("Enter a valid URL")
+    }
     const url = axios.get(csvLink)
     const getCsv = await url;
     
