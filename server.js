@@ -3,80 +3,59 @@ const validator = require("validator")
 const axios = require("axios")
 const path = require("path");
 const fs = require("fs")
-const csvtojson =require("csvtojson")
+const { v4: uuidv4 } = require('uuid');
+const csvtojson =require("csvtojson");
+const { json } = require("body-parser");
+
 const app = express()
 app.use(express.json())
 
-
-// const url = "https://docs.google.com/spreadsheets/d/1i3wYp_mKBTVm88vvhR9w8X-jL6l3vCSmLpO2JA1dOo4/edit?usp=sharing"
-
-app.get("/", (req, res) => {
-    res.send("Hello world")
-})
 
 // Request to get csv file
 app.get("/file", (req, res) => {
     res.sendFile(path.join(__dirname, "test.csv"))
 })
 
+
+
+
 // Make a post req which contains the url and the selected fields
-app.post("/", (req, res) => {
-    try {
-const {csv} = req.body
-let csvUrl = csv.url
-let selectFieldsArray = csv.select_fields
+  app.post("/", (req, res) => {
+      try {
+  const {csv} = req.body
+  let csvUrl = csv.url
+  let selectFieldsArray = csv.select_fields
+  const identifier = uuidv4();
 
-    // validate url 
-//    if(!validator.isURL(csvUrl)) {
-//      return res.status(400).send("Enter a valid url")
-//    }
-
-
-// Function to get data from csv file
-   const urlHandler = async () => {
-    const url = axios.get(csvUrl)
+   // Get the link to csv 
+   const urlHandler = async (csvLink) => {
+    const url = axios.get(csvLink)
     const getCsv = await url;
-
-    let csvData = getCsv.data
-    // console.log(csvData)
     
-    // Write data to a file
+    let csvData = getCsv.data
+
     fs.writeFile("Newfile.csv", csvData, (err) => {
       if(err) throw err;
-      console.log("File saved")
     })
-
-    // Convert csv to json
-    const csvFilePath = path.join(__dirname, "Newfile.csv");
-
-    const jsonArray = await csvtojson().fromFile(csvFilePath)
-    // console.log(jsonArray)
-    // console.log(selectFieldsArray)
-
-
-    // Map content of jsonArray to the selected fields array
-    if(!selectFieldsArray) {
-      // console.log(jsonArray)
-    }
     
-    // loop through the select fields array to get individual item
-  const fields =  selectFieldsArray.map((item) => {
-      return item;
-    })
-  
-  console.log(fields)
-  
+    // convert csv to json
+    const csvFilePath = path.join(__dirname, "Newfile.csv");
+    const jsonArray = await csvtojson().fromFile(csvFilePath)
 
-   }
-   
-// Call function
-   urlHandler()
+    // if select_fields array is empty, return jsonArray 
+    if(selectFieldsArray === []) {
+      return jsonArray
+    }
 
-   res.send(req.body)
+    // Parse jsonArray here to filter out unwanted fields
+    res.send({conversion_key: identifier, json: jsonArray})
+}
+    
+      urlHandler(csvUrl) // insert link to csv as the function argument
 
- }catch (e) {
-    return  res.send(e)
- }
+    } catch (e) {
+        return  res.send(e)
+    }
    
 })
 
