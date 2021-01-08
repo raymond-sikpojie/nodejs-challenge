@@ -6,7 +6,6 @@ const fs = require("fs")
 const { v4: uuidv4 } = require('uuid');
 const csvtojson =require("csvtojson");
 
-
 const app = express()
 app.use(express.json())
 
@@ -16,17 +15,21 @@ app.get("/file", (req, res) => {
     res.sendFile(path.join(__dirname, "test.csv"))
 })
 
-
-// Make a post req which contains the url and the selected fields
   app.post("/", (req, res) => {
-      try {
-  const {csv} = req.body
-  let csvUrl = csv.url
-  let selectFieldsArray = csv.select_fields
-  const identifier = uuidv4();
+   try {
+    const {csv} = req.body
 
-   // Get the link to csv 
-   const urlHandler = async (csvLink) => {
+    
+    const csvUrl = csv.url
+    const selectFieldsArray = csv.select_fields
+    const identifier = uuidv4();
+
+    // Get the link to csv 
+    const urlHandler = async (csvLink) => {
+    // Validate url
+    // if(!validator.isURL(csvLink)) {
+    //   return res.status(400).send("Enter a valid URL")
+    // }
     const url = axios.get(csvLink)
     const getCsv = await url;
     
@@ -36,24 +39,25 @@ app.get("/file", (req, res) => {
       if(err) throw err;
     })
     
-    // convert csv to json
+    // Convert csv to json
     const csvFilePath = path.join(__dirname, "Newfile.csv");
     const jsonArray = await csvtojson().fromFile(csvFilePath)
 
     // if select_fields array is empty, return jsonArray 
     if(selectFieldsArray === []) {
-      return jsonArray
+      return res.send({conversion_key: identifier, json: jsonArray})
     }
 
-    // Parse jsonArray here to filter out unwanted fields
+    // Parse jsonArray here to filter out unwanted fields - Not yet implemented
+
     res.send({conversion_key: identifier, json: jsonArray})
 }
     
-      urlHandler(csvUrl) // insert link to csv as the function argument
+    urlHandler(csvUrl) // insert link to csv as the function argument
 
-    } catch (e) {
-        return  res.send(e)
-    }
+  } catch (e) {
+      return  res.send(e)
+  }
    
 })
 

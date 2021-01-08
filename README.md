@@ -1,3 +1,8 @@
+SET UP APP
+run "npm install"
+
+After installing dependencies, run node server.js from the root directory
+
 This is my solution to the challenge given below. It is implemented in node.js.
 
 Create a single express API endpoint route [HTTP POST] that accepts the following payload
